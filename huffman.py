@@ -1,6 +1,5 @@
 
-# Variável global para guardar a navegação da BTree em uma string
-string_preorder = ""
+import binascii
 
 # Nó de uma árvore de Huffman
 class Node:
@@ -178,19 +177,18 @@ class Huffman:
 		self.huffman_tree = huffman_tree
 
 
-	def decode(self, encoded_content, string_tree):
+	def decode(self, encoded_content):
 
-		self.__string_to_btree(string_tree)
+		#self.__string_to_btree(string_tree)
 
 		tree_head = self.huffman_tree.root
 		btree = self.huffman_tree.root
-		self.encoded_content = (''.join(format(x, 'b') for x in bytearray(encoded_content, 'utf-8')))
+		self.encoded_content = bin(int(binascii.hexlify(encoded_content), base=16)).lstrip('0b')
+		#self.encoded_content = (''.join(format(x, 'b') for x in bytearray(str(encoded_content), 'utf-8')))
 
 		del encoded_content
 
 		decoded_content = []
-
-
 
 		for it in self.encoded_content:
 			if( it == '1'):
@@ -225,3 +223,6 @@ class Huffman:
 
 	def get_tree(self):
 		return self.huffman_tree
+
+	def set_tree(self, huffman_tree):
+		self.huffman_tree = huffman_tree
