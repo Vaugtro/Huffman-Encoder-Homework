@@ -15,6 +15,7 @@ class Node:
 
 		self.code = code
 
+# Árvore Binária
 class BTree:
 
 	# Inicializa árvore binária
@@ -41,33 +42,12 @@ class BTree:
 			else:
 				node.right = Node(symbol, frequency, code)
 
+	# Insere nó como nó raiz
 	def insert_root_node(self, node):
 		if self.root is None:
 			self.root = node
 		else:
 			return
-
-	def inorder(self):
-		if(self.root) is not None:
-			self._inorder(self.root)
-	
-	def _inorder(self, node):
-		global string_inorder
-		if node is not None:
-			self._inorder(node.left)
-			string_inorder += (u"\u0000".join([node.symbol, str(node.frequency), str(node.code)])) + u'\u001F'
-			self._inorder(node.right)
-
-	def preorder(self):
-		if(self.root) is not None:
-			self._preorder(self.root)
-	
-	def _preorder(self, node):
-		global string_preorder
-		if node is not None:
-			string_preorder += (u"\u0000".join([node.symbol, str(node.frequency), str(node.code)])) + u'\u001F'
-			self._preorder(node.left)
-			self._preorder(node.right)
 
 
 # Imprime a probabilidade dos símbolos em uma tabela
@@ -98,6 +78,7 @@ class Huffman:
 			else:
 				self.symbols[el] += 1
 
+	# Calcula os códigos
 	def __calculate_codes(self, node, value = ""):
 
 		value = value + str(node.code)
@@ -110,6 +91,7 @@ class Huffman:
 		if(not node.left and not node.right):
 			self.huffman_encoding[node.symbol] = value
 
+	# Ganho total de compressão em bits (Desconsiderando o preâmbulo)
 	def __total_gain(self):
 		uncompressed = len(self.content) * 8
 		compressed = 0
@@ -120,17 +102,18 @@ class Huffman:
 
 		self.gains = {"uncompressed": uncompressed, "compressed": compressed}
 
-
+	# Resultado da compressão e conversão para binário
 	def __encode_output(self):
 		output = []
 		for c in self.content:
 			output.append(self.huffman_encoding[c])
 
-		self.encoded_content = self.__bitstring_to_bytes(''.join([str(item) for item in output]))
+		self.encoded_content = self.__bitstring_to_bytes('1' + ''.join([str(item) for item in output]))
 
+	# Conversão de string de bits para blob de bytes
 	def __bitstring_to_bytes(self, value):
 		return int(value, 2).to_bytes((len(value) + 7) // 8, byteorder='big')
-
+		
 	# Codificação com Huffman
 	def encode(self, content):
 
@@ -167,30 +150,17 @@ class Huffman:
 		self.__total_gain()
 		self.__encode_output()
 
-	def __string_to_btree(self, string):
-		huffman_tree = BTree()
-
-		for it in string:
-			if(it[0] != ''):
-				huffman_tree.insert(symbol = it[0], frequency = int(it[1]), code = it[2])
-
-		self.huffman_tree = huffman_tree
-
-
+	# Decodificação com Huffman
 	def decode(self, encoded_content):
-
-		#self.__string_to_btree(string_tree)
 
 		tree_head = self.huffman_tree.root
 		btree = self.huffman_tree.root
-		self.encoded_content = bin(int(binascii.hexlify(encoded_content), base=16)).lstrip('0b')
-		#self.encoded_content = (''.join(format(x, 'b') for x in bytearray(str(encoded_content), 'utf-8')))
 
-		del encoded_content
+		self.encoded_content = bin(int(binascii.hexlify(encoded_content), base=16)).lstrip('0b')
 
 		decoded_content = []
 
-		for it in self.encoded_content:
+		for it in self.encoded_content[1:]:
 			if( it == '1'):
 				btree = btree.right
 			elif( it == '0'):
@@ -204,25 +174,22 @@ class Huffman:
 			
 		self.content = ''.join([str(it) for it in decoded_content])
 
+	# Obter ganhos totais
 	def get_gains(self):
 		return self.gains
 
+	# Obter conteúdo do texto
 	def get_content(self):
-		return self.content
+		return self.content.encode("utf-8")
 
+	# Obter conteúdo do texto codificado
 	def get_encode_content(self):
 		return self.encoded_content
 
-	def get_tree_str(self):
-		global string_preorder
-
-		string_preorder = ""
-		self.huffman_tree.preorder()
-
-		return string_preorder
-
+	# Obter árvore de huffman
 	def get_tree(self):
 		return self.huffman_tree
 
+	# Definir árvore de huffman
 	def set_tree(self, huffman_tree):
 		self.huffman_tree = huffman_tree

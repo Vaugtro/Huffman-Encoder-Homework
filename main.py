@@ -1,8 +1,8 @@
 import os
-import re
 import huffman
 import pickle
 
+# Executa codificação
 def encode():
 
 	with open('file.txt', encoding='utf-8') as f:
@@ -16,6 +16,7 @@ def encode():
 		pickle.dump(huffman_obj.get_tree(), f)
 		f.write(huffman_obj.get_encode_content())
 
+# Executa decodificação
 def decode():
 
 	huffman_obj = huffman.Huffman()
@@ -25,7 +26,7 @@ def decode():
 		content = f.read()
 	huffman_obj.decode(content)
 
-	with open('decode.txt', 'w') as f:
+	with open('decode.txt', 'wb') as f:
 		f.write(huffman_obj.get_content())
 
 encode()
