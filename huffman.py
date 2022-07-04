@@ -1,5 +1,6 @@
 
 import binascii
+import math
 
 # Nó de uma árvore de Huffman
 class Node:
@@ -100,7 +101,7 @@ class Huffman:
 			count = self.content.count(symbol)
 			compressed += count * len(self.huffman_encoding[symbol])
 
-		self.gains = {"uncompressed": uncompressed, "compressed": compressed}
+		self.gains = {"uncompressed": math.ceil(uncompressed / 8), "compressed": math.ceil(compressed / 8)}
 
 	# Resultado da compressão e conversão para binário
 	def __encode_output(self):
@@ -174,7 +175,7 @@ class Huffman:
 			
 		self.content = ''.join([str(it) for it in decoded_content])
 
-	# Obter ganhos totais
+	# Obter ganhos totais em bytes
 	def get_gains(self):
 		return self.gains
 
@@ -193,3 +194,22 @@ class Huffman:
 	# Definir árvore de huffman
 	def set_tree(self, huffman_tree):
 		self.huffman_tree = huffman_tree
+
+	# Obtem tabela com probabilidade, número de bits originais e número de bits após compressão
+	def get_table(self):
+
+		total = 0
+
+		prob_dict = dict()
+		original_bits = dict()
+		compressed_bits = dict()
+
+		for value in self.symbols.values():
+			total += value
+
+		for value in self.symbols.items():
+			prob_dict[value[0]] = str((value[1]/total) * 100)+'%'
+			original_bits[value[0]] = '8 bits'
+			compressed_bits[value[0]] = str(len(self.huffman_encoding[value[0]])) + ' bits'
+		
+		return {'probability': prob_dict, 'original': original_bits, 'compressed': compressed_bits}
